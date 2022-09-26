@@ -1,0 +1,17 @@
+[tool.isort]
+profile = "black"
+src_paths = ["service", "tests"]
+honor_noqa = true
+
+[tool.black]
+line-length = 120
+target-version = ['py310']
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.string]
+check-quote-consistency = "yes"
+
+[tool.pylint.messages]
+extension-pkg-whitelist = "pydantic"

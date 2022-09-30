@@ -69,7 +69,7 @@ def test_add_clan_success_new():
 
 
 @responses.activate
-def test_add_clan_success_new():
+def test_add_clan_success_existing():
     nats_mock.messages = []
     responses.add(responses.GET, "http://store.host:8080/clans/TEST", status=404)
     responses.add(

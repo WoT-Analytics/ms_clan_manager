@@ -49,7 +49,7 @@ def get_stored_clan_data(clan_tag: str) -> ClanModel | None:
 
 
 def get_api_clan_data(clan_tag: str) -> ClanModel | None:
-    response = requests.get(f"http://{API_SERVICE_HOST}:{API_SERVICE_PORT}/clan/tag/{clan_tag}", timeout=TIMEOUT)
+    response = requests.get(f"http://{API_SERVICE_HOST}:{API_SERVICE_PORT}/clans/tag/{clan_tag}", timeout=TIMEOUT)
     if response.status_code == fastapi.status.HTTP_404_NOT_FOUND:
         return None
     response.raise_for_status()
@@ -65,14 +65,14 @@ def save_clan(clan_data: ClanModel) -> bool:
 
 
 def delete_clan(clan_data: ClanModel) -> None:
-    response = requests.put(f"http://{STORE_SERVICE_HOST}:{STORE_SERVICE_PORT}/clans",
-                            json={"clan_id": clan_data.clan_id, "clan_tag": clan_data.clan_tag}, timeout=TIMEOUT)
+    response = requests.delete(f"http://{STORE_SERVICE_HOST}:{STORE_SERVICE_PORT}/clans",
+                               json={"clan_id": clan_data.clan_id, "clan_tag": clan_data.clan_tag}, timeout=TIMEOUT)
     response.raise_for_status()
 
 
 @app.put("/clans/{clan_tag}", response_class=fastapi.Response,
          responses={
-             201: {"description": "Added the clan to the system."},
+             201: {"description": "Clan added to the system."},
              200: {"description": "Clan exists in the system."},
              404: {"description": "Requested clan does not exist."}
          })
@@ -95,7 +95,7 @@ async def add_clan(clan_tag: str, nats_con: nats.NATS = fastapi.Depends(get_nats
 
 
 @app.delete("/clans/{clan_tag}")
-def delete_clan(clan_tag: str, nats_con: nats.NATS = fastapi.Depends(get_nats_session)):
+async def remove_clan(clan_tag: str, nats_con: nats.NATS = fastapi.Depends(get_nats_session)):
     clan_data = get_stored_clan_data(clan_tag)
     if not clan_data:
         clan_data = get_api_clan_data(clan_tag)

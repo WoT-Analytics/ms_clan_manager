@@ -43,9 +43,7 @@ def test_add_clan_existing():
 @responses.activate
 def test_add_clan_error():
     nats_mock.messages = []
-    responses.add(
-        responses.GET, "http://store.host:8080/clans/TEST", json={"clan_id": 1, "clan_tag": "TEST"}, status=404,
-    )
+    responses.add(responses.GET, "http://store.host:8080/clans/TEST", status=404)
     responses.add(responses.GET, "http://api.host:8080/clans/tag/TEST", status=404)
 
     response = client.put("/clans/TEST")
@@ -56,9 +54,7 @@ def test_add_clan_error():
 @responses.activate
 def test_add_clan_success_new():
     nats_mock.messages = []
-    responses.add(
-        responses.GET, "http://store.host:8080/clans/TEST", json={"clan_id": 1, "clan_tag": "TEST"}, status=404,
-    )
+    responses.add(responses.GET, "http://store.host:8080/clans/TEST", status=404)
     responses.add(responses.GET, "http://api.host:8080/clans/tag/TEST",
                   json={"clan_id": 1, "clan_tag": "TEST"}, status=200)
     responses.add(responses.PUT, "http://store.host:8080/clans", status=201)
@@ -69,15 +65,22 @@ def test_add_clan_success_new():
 
 
 @responses.activate
-def test_add_clan_success_new():
+def test_delete_clan_success():
     nats_mock.messages = []
     responses.add(
-        responses.GET, "http://store.host:8080/clans/TEST", json={"clan_id": 1, "clan_tag": "TEST"}, status=404,
+        responses.GET, "http://store.host:8080/clans/TEST", json={"clan_id": 1, "clan_tag": "TEST"}, status=200
     )
-    responses.add(responses.GET, "http://api.host:8080/clans/tag/TEST",
-                  json={"clan_id": 1, "clan_tag": "TEST"}, status=200)
-    responses.add(responses.PUT, "http://store.host:8080/clans", status=200)
-
-    response = client.put("/clans/TEST")
+    responses.add(responses.DELETE, "http://store.host:8080/clans", status=200)
+    response = client.delete("/clans/TEST")
     assert response.status_code == 200
+    assert nats_mock.messages == [("clans.delete", b"1")]
+
+
+@responses.activate
+def test_delete_clan_error():
+    nats_mock.messages = []
+    responses.add(responses.GET, "http://store.host:8080/clans/TEST", status=404)
+    responses.add(responses.GET, "http://api.host:8080/clans/tag/TEST", status=404)
+    response = client.delete("/clans/TEST")
+    assert response.status_code == 404
     assert nats_mock.messages == []

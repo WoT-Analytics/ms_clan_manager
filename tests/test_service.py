@@ -65,6 +65,19 @@ def test_add_clan_success_new():
 
 
 @responses.activate
+def test_add_clan_success_new():
+    nats_mock.messages = []
+    responses.add(responses.GET, "http://store.host:8080/clans/TEST", status=404)
+    responses.add(responses.GET, "http://api.host:8080/clans/tag/TEST",
+                  json={"clan_id": 1, "clan_tag": "TEST"}, status=200)
+    responses.add(responses.PUT, "http://store.host:8080/clans", status=200)
+
+    response = client.put("/clans/TEST")
+    assert response.status_code == 200
+    assert nats_mock.messages == []
+
+
+@responses.activate
 def test_delete_clan_success():
     nats_mock.messages = []
     responses.add(

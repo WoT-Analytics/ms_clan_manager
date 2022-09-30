@@ -6,7 +6,6 @@ from service.main import app, get_nats_session
 
 
 class NatsMock:
-
     def __init__(self):
         self.messages = []
 
@@ -16,6 +15,7 @@ class NatsMock:
 
 async def get_nats_mock():
     return nats_mock
+
 
 service.main.API_SERVICE_HOST = "api.host"
 service.main.API_SERVICE_PORT = "8080"
@@ -32,7 +32,10 @@ app.dependency_overrides[get_nats_session] = get_nats_mock
 def test_add_clan_existing():
     nats_mock.messages = []
     responses.add(
-        responses.GET, "http://store.host:8080/clans/TEST", json={"clan_id": 1, "clan_tag": "TEST"}, status=200,
+        responses.GET,
+        "http://store.host:8080/clans/TEST",
+        json={"clan_id": 1, "clan_tag": "TEST"},
+        status=200,
     )
 
     response = client.put("/clans/TEST")
@@ -55,8 +58,9 @@ def test_add_clan_error():
 def test_add_clan_success_new():
     nats_mock.messages = []
     responses.add(responses.GET, "http://store.host:8080/clans/TEST", status=404)
-    responses.add(responses.GET, "http://api.host:8080/clans/tag/TEST",
-                  json={"clan_id": 1, "clan_tag": "TEST"}, status=200)
+    responses.add(
+        responses.GET, "http://api.host:8080/clans/tag/TEST", json={"clan_id": 1, "clan_tag": "TEST"}, status=200
+    )
     responses.add(responses.PUT, "http://store.host:8080/clans", status=201)
 
     response = client.put("/clans/TEST")
@@ -68,8 +72,9 @@ def test_add_clan_success_new():
 def test_add_clan_success_new():
     nats_mock.messages = []
     responses.add(responses.GET, "http://store.host:8080/clans/TEST", status=404)
-    responses.add(responses.GET, "http://api.host:8080/clans/tag/TEST",
-                  json={"clan_id": 1, "clan_tag": "TEST"}, status=200)
+    responses.add(
+        responses.GET, "http://api.host:8080/clans/tag/TEST", json={"clan_id": 1, "clan_tag": "TEST"}, status=200
+    )
     responses.add(responses.PUT, "http://store.host:8080/clans", status=200)
 
     response = client.put("/clans/TEST")

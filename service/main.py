@@ -100,6 +100,7 @@ def delete_clan(clan_data: ClanModel) -> None:
 @app.put(
     "/clans/{clan_tag}",
     response_class=fastapi.Response,
+    description="Adds the clan with the clan tag to the system.",
     responses={
         201: {"description": "Clan added to the system."},
         200: {"description": "Clan exists in the system."},
@@ -134,6 +135,7 @@ async def add_clan(clan_tag: str, nats_con: nats.NATS = fastapi.Depends(get_nats
 @app.delete(
     "/clans/{clan_tag}",
     response_class=fastapi.Response,
+    description="Removes the clan with the clan tag from the system.",
     responses={
         200: {"description": "Clan removed from the system."},
         404: {"description": "Requested clan does not exist."},
